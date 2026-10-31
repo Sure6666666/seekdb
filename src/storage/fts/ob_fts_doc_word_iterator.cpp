@@ -238,23 +238,14 @@ int ObFTDocWordScanIterator::build_key_range(const uint64_t table_id,
   static int64_t ROWKEY_COLUMN_COUNT = 2;
   common::ObNewRange range;
   common::ObObj *objs = nullptr;
-  
   if (OB_UNLIKELY(OB_INVALID_ID == table_id)) {
     ret = OB_INVALID_ARGUMENT;
-  } 
-  
-  else if (OB_ISNULL(objs = static_cast<common::ObObj *>(
-                         allocator_.alloc(sizeof(common::ObObj) * ROWKEY_COLUMN_COUNT * 2)))) {
+  } else if (OB_ISNULL(objs = OB_NEW_ARRAY(common::ObObj, &allocator_, ROWKEY_COLUMN_COUNT * 2))) {
     ret = OB_ALLOCATE_MEMORY_FAILED;
   } else {
-    
-    for (int i = 0; i < ROWKEY_COLUMN_COUNT * 2; ++i) {
-      new (&objs[i]) common::ObObj();
-    }
-
     if (docid_type_ == ObDocIDType::HIDDEN_INC_PK) {
       objs[0].set_uint64(doc_id_datum.get_uint64());
-      objs[2].set_uint64(doc_id_datum.get_uint64());
+      objs[2].set_uint64(doc_id_datum.get_uint64 ());
     } else if (docid_type_ == ObDocIDType::TABLET_SEQUENCE) {
       objs[0].set_varbinary(doc_id_datum.get_string());
       objs[2].set_varbinary(doc_id_datum.get_string());
