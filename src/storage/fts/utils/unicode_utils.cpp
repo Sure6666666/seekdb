@@ -101,22 +101,29 @@ bool ObUnicodeBlockUtils::check_ignore_as_single(const ob_wc_t unicode)
 
 bool ObUnicodeBlockUtils::is_chinese(const ob_wc_t unicode)
 {
-  return (unicode >= 0x4E00 && unicode <= 0x9FFF) ||
-           (unicode >= 0xF900 && unicode <= 0xFAFF) ||
-           (unicode >= 0x3400 && unicode <= 0x4DBF);
+    // variables name keep same with it's code block name, skip code style.
+    bool CJK_UNIFIED_IDEOGRAPHS = (unicode >= 0x4E00 && unicode <= 0x9FFF);
+    bool CJK_COMPATIBILITY_IDEOGRAPHS = (unicode >= 0xF900 && unicode <= 0xFAFF);
+    bool CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A = (unicode >= 0x3400 && unicode <= 0x4DBF);
+    return CJK_UNIFIED_IDEOGRAPHS || CJK_COMPATIBILITY_IDEOGRAPHS
+        || CJK_UNIFIED_IDEOGRAPHS_EXTENSION_A;
 }
-
 bool ObUnicodeBlockUtils::is_other_cjk(const ob_wc_t unicode)
 {
-  return (unicode >= 0xFF00 && unicode <= 0xFFEF) || // Halfwidth and Fullwidth Forms
-           (unicode >= 0xAC00 && unicode <= 0xD7AF) || // Hangul Syllables
-           (unicode >= 0x1100 && unicode <= 0x11FF) || // Hangul Jamo
-           (unicode >= 0x3130 && unicode <= 0x318F) || // Hangul Compatibility Jamo
-           (unicode >= 0x3040 && unicode <= 0x309F) || // Hiragana
-           (unicode >= 0x30A0 && unicode <= 0x30FF) || // Katakana
-           (unicode >= 0x31F0 && unicode <= 0x31FF);   // Katakana Phonetic Extensions
-}
+    // variables name keep same with it's code block name, skip code style.
+    bool HALFWIDTH_AND_FULLWIDTH_FORMS = (unicode >= 0xFF00 && unicode <= 0xFFEF);
+    
+    bool HANGUL_SYLLABLES = (unicode >= 0xAC00 && unicode <= 0xD7AF);
+    bool HANGUL_JAMO = (unicode >= 0x1100 && unicode <= 0x11FF);
+    bool HANGUL_COMPATIBILITY_JAMO = (unicode >= 0x3130 && unicode <= 0x318f);
+    
+    bool HIRAGANA = (unicode >= 0x3040 && unicode <= 0x309F);
+    bool KATAKANA = (unicode >= 0x30A0 && unicode <= 0x30FF);
+    bool KATAKANA_PHONETIC_EXTENSIONS = (unicode >= 0x31F0 && unicode <= 0x31FF);
 
+    return HALFWIDTH_AND_FULLWIDTH_FORMS || HANGUL_SYLLABLES || HANGUL_JAMO
+        || HANGUL_COMPATIBILITY_JAMO || HIRAGANA || KATAKANA || KATAKANA_PHONETIC_EXTENSIONS;
+}
 bool ObUnicodeBlockUtils::is_surrogate(const ob_wc_t unicode)
 {
   bool HIGH_SURROGATES = (unicode >= 0xD800 && unicode <= 0xDB7F);
