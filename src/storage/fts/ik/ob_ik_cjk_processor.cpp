@@ -37,38 +37,47 @@ int ObIKCJKProcessor::do_process(TokenizeContext &ctx,
   int ret = OB_SUCCESS;
 
   if (ObFTCharUtil::CharType::USELESS != type) {
-    // handle previous hits_ first and then check from this char
+    
+    const char *fulltext = ctx.fulltext(); 
+    
+    
     for (ObList<ObDATrieHit, ObIAllocator>::iterator iter = hits_.begin();
-         OB_SUCC(ret) && iter != hits_.end();
-         iter++) {
+         OB_SUCC(ret) && iter != hits_.end();) {
       ObDATrieHit &hit = *iter;
       if (OB_FAIL(dict_main_.match_with_hit({char_len, ch}, hit, hit))) {
       } else if (hit.is_match()) {
-        if (OB_FAIL(ctx.add_token(ctx.fulltext(),
+      
+        if (OB_FAIL(ctx.add_token(fulltext,
                                   hit.start_pos_,
                                   hit.end_pos_ - hit.start_pos_,
                                   hit.char_cnt_,
                                   ObIKTokenType::IK_CHINESE_TOKEN))) {
         } else if (hit.is_prefix()) {
-          // match will record the start_cursor
+          
         }
       } else if (hit.is_prefix()) {
-        // nothing
+        
       } else if (hit.is_unmatch()) {
-        hits_.erase(hit);
+       
+        iter = hits_.erase(iter); 
+        continue; 
       } else {
         ret = OB_UNEXPECT_INTERNAL_ERROR;
       }
+      
+      if (OB_SUCC(ret)) {
+        iter++; 
+      }
     }
+    
     if (OB_SUCC(ret)) {
-      // Start from this char
-      // find range of dict
+      
       ObDATrieHit hit(&dict_main_, ctx.get_cursor());
       if (OB_FAIL(dict_main_.match({char_len, ch}, hit))) {
       } else if (hit.is_match()) {
-        // output token
+        
         hits_.push_back(hit);
-        ctx.add_token(ctx.fulltext(),
+        ctx.add_token(fulltext,
                       ctx.get_cursor(),
                       char_len,
                       1,
@@ -76,11 +85,11 @@ int ObIKCJKProcessor::do_process(TokenizeContext &ctx,
       } else if (hit.is_prefix()) {
         hits_.push_back(hit);
       } else {
-        // ignore mismatch
+        
       }
     }
   } else {
-    // stop previous match
+    
     hits_.clear();
   }
 
