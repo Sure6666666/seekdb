@@ -77,36 +77,27 @@ int ObIKFTParser::get_next_token(const char *&word,
   int64_t len;
   int64_t offset;
   int64_t cnt;
-
+  
   if (!IS_INIT) {
     ret = OB_NOT_INIT;
   } else {
-    bool accept_token = false;
-    while (OB_SUCC(ret) && !accept_token) {
+    while (OB_SUCC(ret)) {
       if (OB_FAIL(produce())) {
+        // log
       } else if (OB_FAIL(ctx_->get_next_token(output_word, len, offset, cnt))) {
-        if (OB_ITER_END == ret) {
-          // ok, end this iter
-        } else {
+        if (OB_ITER_END != ret) {
+          LOG_WARN("failed to get next token from ctx", K(ret));
         }
       } else {
-        bool is_stop = false;
-        // if (!OB_ISNULL(dict_stop_)
-        //     && OB_FAIL(dict_stop_->match(ObString(len, output_word + offset), is_stop))) {
-        //   LOG_WARN("Failed to match stopwords", K(ret));
-        // } else
-        if (!is_stop) {
-          word = output_word + offset;
-          word_len = len;
-          char_cnt = cnt;
-          word_freq = 1;
-          accept_token = true;
-        } else {
-        }
+        
+        word = output_word + offset;
+        word_len = len;
+        char_cnt = cnt;
+        word_freq = 1;
+        break; 
       }
     }
   }
-
   return ret;
 }
 
